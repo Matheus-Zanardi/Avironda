@@ -45,13 +45,18 @@ Casos de teste em `avaliacao/casos.jsonl`, inclusive um caso com resposta "não 
 
 ## Resultados (11 casos)
 
-| Configuração | Acertos (10 casos automáticos) | Observação |
-|---|---|---|
-| Sem contexto | 1 | Acerta só o c08, por acaso |
-| RAG simples | 9 | Erro: c03 (resposta incompleta) |
-| Agente | 9 | Mesmo erro: c03 |
+| Configuração | Valor correto (10 casos automáticos) | Resposta completa e citada | Observação |
+|---|---|---|---|
+| Sem contexto | 1 | 0 | Acerta o c08 por acaso; inventa valores nos demais |
+| RAG simples | 9 | 8 | Erros: c08 (sem o limiar de 20 ppm), c10 (fonte não citada) |
+| Agente | 9 | 8 | Erro: c03 (resposta incompleta, só 36 ppm) |
 
-O caso c05 (efeitos do El Niño) é avaliado à mão e teve o mesmo resultado nas três configurações.
+- O caso c05 (efeitos do El Niño) é avaliado à mão e teve resposta correta nas três configurações.
+- **JSON válido no RAG:** 11 de 11 casos.
+- **Fonte correta no RAG:** 10 de 11 casos.
+- **Recall@1 = 1,00 e recall@3 = 1,00** nos 10 casos com resposta na base.
+- **Limiar de recusa:** as menores distâncias dos casos respondíveis ficaram entre 0,10 e 0,20. Fixado em 0,20. O caso c04 ("não consta") tem distância 0,175, menor que a de alguns casos respondíveis. Por isso, o limiar sozinho não separa os casos; a recusa depende também do modelo gerador.
+- **Variação entre execuções:** o agente errou o c03 nesta rodada, que o RAG acertou. Com temperatura 0, o modelo de 3B ainda varia, o que limita a comparação com 11 casos.
 
 ### Recall da busca
 Recall@1 e recall@3 = 1,00 nos 10 casos com resposta na base.
