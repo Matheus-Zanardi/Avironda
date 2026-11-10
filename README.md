@@ -67,3 +67,16 @@ Limitação: esse limiar não separa sozinho os casos. O caso c04 ("não consta"
 - Parte do El Niño vem de notícias do setor, não do Painel El Niño oficial.
 - O agente não superou o RAG simples nesse conjunto.
 - O conjunto de teste é pequeno, e as perguntas usam termos próximos dos trechos, o que favorece o recall.
+
+## Pipeline de IA
+
+```mermaid
+flowchart LR
+    A[Pergunta do usuário] --> B[Embedding<br/>bge-small-en-v1.5]
+    B --> C[(ChromaDB<br/>16 trechos)]
+    C --> D{Distância do melhor trecho<br/>> 0,20?}
+    D -- sim --> E[Recusa: não consta na base]
+    D -- não --> F[Top 3 trechos]
+    F --> G[Prompt com contexto<br/>qwen2.5:3b via Ollama]
+    G --> H[Resposta com citação<br/>ex.: emb_003]
+```
