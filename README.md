@@ -33,6 +33,26 @@ Carrinho autônomo que faz ronda em aviário, mede calor e amônia e avisa o gra
 4. Indexe a base: `python indexar.py`
 5. Teste uma pergunta: `python rag.py "Qual o limite de amônia recomendado para exportadores de frango?"`
 
+## API
+
+Com o ambiente ativo, rode:
+
+```
+uvicorn api:app --reload
+```
+
+Depois acesse `http://127.0.0.1:8000/docs` para testar pelo navegador, ou use:
+
+```
+curl -X POST http://127.0.0.1:8000/perguntar -H "Content-Type: application/json" -d "{\"pergunta\": \"Qual o limite de amônia recomendado para exportadores de frango?\"}"
+```
+
+Exemplo de resposta:
+
+```json
+{"resposta": "20 ppm", "fonte": "emb_002", "encontrou": true}
+```
+
 ## Avaliação
 - `baseline.py`: respostas da LLM sem contexto.
 - `avaliar.py`: respostas com RAG.
