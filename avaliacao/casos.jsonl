@@ -1,0 +1,5 @@
+{"id": "c01", "pergunta": "Qual o limite de amônia recomendado para exportadores de frango?", "resposta_esperada": "20 ppm", "fonte_esperada": "emb_002"}
+{"id": "c02", "pergunta": "Qual a faixa de amônia recomendada no ambiente do aviário segundo a Embrapa?", "resposta_esperada": "no máximo 25 ppm", "fonte_esperada": "emb_003"}
+{"id": "c03", "pergunta": "Quais valores máximos de amônia foram medidos no aviário dark house?", "resposta_esperada": "29, 78 e 36 ppm", "fonte_esperada": "emb_001"}
+{"id": "c04", "pergunta": "Qual o limite de CO2 recomendado para aviários?", "resposta_esperada": "não consta", "fonte_esperada": null}
+{"id": "c05", "pergunta": "Quais efeitos o El Niño pode causar na avicultura?", "resposta_esperada": "menor consumo de ração, pior conversão alimentar, menor ganho de peso e mais mortalidade", "fonte_esperada": "elnino_002"}
