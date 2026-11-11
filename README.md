@@ -105,3 +105,7 @@ flowchart LR
     F --> G[Prompt com contexto<br/>qwen2.5:3b via Ollama]
     G --> H[Resposta com citação<br/>ex.: emb_003]
 ```
+
+## Notebook
+
+`notebooks/avironda.ipynb` roda o pipeline de ponta a ponta (base, casos de teste, RAG e placar) com as saídas salvas. Para reproduzir, abra o notebook no Jupyter a partir da pasta do projeto, com o ambiente ativo.
