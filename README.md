@@ -18,8 +18,33 @@ Carrinho autônomo que faz ronda em aviário, mede calor e amônia e avisa o gra
 - **Cidadão:** produtor avícola.
 - **Problema:** calor e amônia em aviários podem prejudicar a saúde das aves e o desempenho.
 - **Componentes de IA:** LLM local (qwen2.5:3b via Ollama), embeddings (BAAI/bge-small-en-v1.5), ChromaDB.
-- **Fontes:** Embrapa (amônia, estresse calórico, ventilação), aviNews e Exame Agro (El Niño).
+- **Fontes:** Embrapa (amônia, estresse calórico, ventilação), aviNews, Exame Agro e A Gazeta (El Niño).
 - **ODS:** 2 (fome zero e agricultura sustentável), 3 (saúde e bem-estar), 9 (indústria, inovação e infraestrutura).
+
+## Pipeline de IA
+
+```mermaid
+flowchart LR
+    A[Pergunta do usuário] --> B[Embedding<br/>bge-small-en-v1.5]
+    B --> C[(ChromaDB<br/>16 trechos)]
+    C --> D{Distância do melhor trecho<br/>> 0,20?}
+    D -- sim --> E[Recusa: não consta na base]
+    D -- não --> F[Top 3 trechos]
+    F --> G[Prompt com contexto<br/>qwen2.5:3b via Ollama]
+    G --> H[Resposta JSON com citação<br/>ex.: emb_003]
+```
+
+## Tabela da base
+| Fonte | Formato | Licença | Trechos |
+|---|---|---|---|
+| Embrapa (amônia, dark house, cama reutilizada, estresse calórico) | Artigos e comunicados (PDF) | Verificar no site da Embrapa | 9 |
+| aviNews | Notícia (HTML) | Direitos reservados ao site | 2 |
+| Exame Agro | Notícia (HTML) | Direitos reservados ao site | 1 |
+| A Gazeta | Artigo de opinião (HTML) | Direitos reservados ao site | 1 |
+| UFSM | Dissertação (PDF) | Acesso aberto, verificar | 1 |
+| UNICAMP | Resumo de congresso (PDF) | Verificar | 1 |
+| Anais de congresso (Sousa-PB) | Artigo (PDF) | Verificar | 1 |
+| **Total** | | | **16** |
 
 ## Como reproduzir
 1. Instale [Python 3.10+](https://www.python.org/) e o [Ollama](https://ollama.com/download).
@@ -28,30 +53,30 @@ Carrinho autônomo que faz ronda em aviário, mede calor e amônia e avisa o gra
 
 - python -m venv .venv
 - .venv\Scripts\activate
-- pip install ollama chromadb sentence-transformers pandas
+- pip install ollama chromadb sentence-transformers pandas fastapi uvicorn jupyter
 
 4. Indexe a base: `python indexar.py`
 5. Teste uma pergunta: `python rag.py "Qual o limite de amônia recomendado para exportadores de frango?"`
 
 ## API
-
 Com o ambiente ativo, rode:
 
-```
-uvicorn api:app --reload
-```
+- uvicorn api:app --reload
+
 
 Depois acesse `http://127.0.0.1:8000/docs` para testar pelo navegador, ou use:
 
-```
-curl -X POST http://127.0.0.1:8000/perguntar -H "Content-Type: application/json" -d "{\"pergunta\": \"Qual o limite de amônia recomendado para exportadores de frango?\"}"
-```
+curl -X POST http://127.0.0.1:8000/perguntar -H “Content-Type: application/json” -d “{“pergunta”: “Qual o limite de amônia recomendado para exportadores de frango?”}”
+
 
 Exemplo de resposta:
 
 ```json
 {"resposta": "20 ppm", "fonte": "emb_002", "encontrou": true}
 ```
+
+## Notebook
+`notebooks/avironda.ipynb` roda o pipeline de ponta a ponta (base, casos de teste, RAG e placar) com as saídas salvas. Para reproduzir, abra o notebook no Jupyter a partir da pasta do projeto, com o ambiente ativo.
 
 ## Avaliação
 - `baseline.py`: respostas da LLM sem contexto.
@@ -78,34 +103,9 @@ Casos de teste em `avaliacao/casos.jsonl`, inclusive um caso com resposta "não 
 - **Limiar de recusa:** as menores distâncias dos casos respondíveis ficaram entre 0,10 e 0,20. Fixado em 0,20. O caso c04 ("não consta") tem distância 0,175, menor que a de alguns casos respondíveis. Por isso, o limiar sozinho não separa os casos; a recusa depende também do modelo gerador.
 - **Variação entre execuções:** o agente errou o c03 nesta rodada, que o RAG acertou. Com temperatura 0, o modelo de 3B ainda varia, o que limita a comparação com 11 casos.
 
-### Recall da busca
-Recall@1 e recall@3 = 1,00 nos 10 casos com resposta na base.
-
-### Limiar de recusa
-A menor distância dos casos respondíveis ficou entre 0,10 e 0,20. O limiar foi fixado em **0,20**. Acima disso, o sistema recusa sem chamar a LLM.
-
-Limitação: esse limiar não separa sozinho os casos. O caso c04 ("não consta") tem distância 0,175, menor que a de alguns casos respondíveis. A recusa desse caso depende do modelo gerador, não só do limiar.
-
 ## Limitações
 - Modelo de 3B parâmetros, rodando em GPU de 6 GB.
 - Base pequena (16 trechos) e conjunto de teste com 11 casos.
 - Parte do El Niño vem de notícias do setor, não do Painel El Niño oficial.
 - O agente não superou o RAG simples nesse conjunto.
 - O conjunto de teste é pequeno, e as perguntas usam termos próximos dos trechos, o que favorece o recall.
-
-## Pipeline de IA
-
-```mermaid
-flowchart LR
-    A[Pergunta do usuário] --> B[Embedding<br/>bge-small-en-v1.5]
-    B --> C[(ChromaDB<br/>16 trechos)]
-    C --> D{Distância do melhor trecho<br/>> 0,20?}
-    D -- sim --> E[Recusa: não consta na base]
-    D -- não --> F[Top 3 trechos]
-    F --> G[Prompt com contexto<br/>qwen2.5:3b via Ollama]
-    G --> H[Resposta com citação<br/>ex.: emb_003]
-```
-
-## Notebook
-
-`notebooks/avironda.ipynb` roda o pipeline de ponta a ponta (base, casos de teste, RAG e placar) com as saídas salvas. Para reproduzir, abra o notebook no Jupyter a partir da pasta do projeto, com o ambiente ativo.
