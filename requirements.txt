@@ -1,0 +1,7 @@
+ollama
+chromadb
+sentence-transformers
+pandas
+fastapi
+uvicorn
+jupyter
