@@ -2,7 +2,7 @@
 
 Projeto da Global Solution 2026.2 (FIAP, Engenharia de Software 4º ano), componente Inteligência (Generative AI for Engineering).
 
-Vídeo: [LINK DO VÍDEO]
+Vídeo: https://youtu.be/HAiARoLpH-0
 
 ## Integrantes
 | Integrante | RM |
